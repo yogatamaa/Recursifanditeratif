@@ -8,7 +8,6 @@ class CheckoutOption:
         self.description = description
 
 # Implementasi Linear Search secara iteratif untuk menemukan opsi checkout
-
 def linear_search(options, target):
     for option in options:
         if option.description == target:
@@ -16,7 +15,6 @@ def linear_search(options, target):
     return None
 
 # Implementasi Linear Search secara rekursif untuk menemukan opsi checkout
-
 def linear_search_recursive(options, target, index=0):
     if index >= len(options):
         return None
@@ -24,9 +22,18 @@ def linear_search_recursive(options, target, index=0):
         return options[index]
     return linear_search_recursive(options, target, index + 1)
 
-# Studi kasus dengan daftar opsi checkout
-options = [CheckoutOption(i, f"Option {i}") for i in range(1, 1001)]
-options.sort(key=lambda option: option.description)
+# Data real untuk daftar opsi checkout
+real_data = [
+    "Shampo", "Sabun", "Pasta Gigi", "Handuk", "Sikat Gigi", "Sampo Bayi", "Sabun Mandi", "Minyak Rambut",
+    "Kondisioner", "Deodoran", "Tisu", "Masker Wajah", "Hand Sanitizer", "Lotion Tubuh", "Krim Wajah", "Minyak Wangi",
+    "Scrub Tubuh", "Sabun Cuci Muka", "Shower Gel", "Body Butter", "Face Wash", "Shaving Cream", "Hair Gel",
+    "Body Mist", "Hand Cream", "Lip Balm", "Face Serum", "Face Toner", "Eye Cream", "Sunblock", "Aftershave",
+    "Nail Polish Remover", "Foot Cream", "Hair Spray", "Hair Wax", "Body Oil", "Mouthwash", "Hair Mousse", "Hand Wash"
+]
+
+# Buat data CheckoutOption dari data real
+options = [CheckoutOption(i + 1, real_data[i]) for i in range(len(real_data))]
+options.sort(key=lambda option: option.description)  # Mengurutkan data berdasarkan deskripsi
 
 # Fungsi untuk mengukur waktu eksekusi dengan presisi lebih tinggi
 def measure_time(func, *args, repetitions=1000):
@@ -39,47 +46,38 @@ def measure_time(func, *args, repetitions=1000):
 results_table = PrettyTable()
 results_table.field_names = ["n", "Linear Recursive Time (s)", "Linear Iterative Time (s)"]
 
-# Menambahkan loop untuk pengujian dan perbandingan
-while True:
-    try:
-        n = int(input("Masukkan nilai n (atau ketik -1 untuk keluar): "))
-        if n == -1:
-            break
-        if n > len(options):
-            print(f"Nilai n terlalu besar! Maksimal adalah {len(options)}.")
-            continue
+# Kelipatan n untuk pengujian
+n_values = list(range(5, 26, 5))  # Kelipatan 5 dari 5 hingga 25
 
-        subset = options[:n]
-        target = subset[-1].description  # Pilih opsi terakhir sebagai target pencarian
+# Melakukan pengujian dan perbandingan
+recursive_times = []
+iterative_times = []
 
-        # Waktu eksekusi untuk setiap metode pencarian
-        linear_recursive_time = measure_time(linear_search_recursive, subset, target, repetitions=100)
-        linear_iterative_time = measure_time(linear_search, subset, target, repetitions=100)
+for n in n_values:
+    subset = options[:n]
+    target = subset[-1].description  # Pilih opsi terakhir sebagai target pencarian
 
-        # Tambahkan hasil ke tabel
-        results_table.add_row([n, linear_recursive_time, linear_iterative_time])
+    # Waktu eksekusi untuk setiap metode pencarian
+    linear_recursive_time = measure_time(linear_search_recursive, subset, target, repetitions=100)
+    linear_iterative_time = measure_time(linear_search, subset, target, repetitions=100)
 
-        # Cetak tabel hasil
-        print(results_table)
+    # Menyimpan hasil ke tabel dan list
+    results_table.add_row([n, linear_recursive_time, linear_iterative_time])
+    recursive_times.append(linear_recursive_time)
+    iterative_times.append(linear_iterative_time)
 
-        # Plot hasil untuk Linear Search
-        sizes = [row[0] for row in results_table._rows]
-        linear_recursive_times = [row[1] for row in results_table._rows]
-        linear_iterative_times = [row[2] for row in results_table._rows]
+# Cetak tabel hasil
+print(results_table)
 
-        # Membuat grafik perbandingan
-        plt.figure(figsize=(12, 8))
+# Membuat grafik perbandingan
+plt.figure(figsize=(12, 8))
+plt.plot(n_values, recursive_times, marker='o', label='Linear Recursive')
+plt.plot(n_values, iterative_times, marker='o', label='Linear Iterative')
 
-        plt.plot(sizes, linear_recursive_times, marker='o', label='Linear Recursive')
-        plt.plot(sizes, linear_iterative_times, marker='o', label='Linear Iterative')
-
-        plt.title('Performance Comparison: Checkout Optimization Search (Recursive & Iterative)')
-        plt.xlabel('Input Size (n)')
-        plt.ylabel('Execution Time (seconds)')
-        plt.legend()
-        plt.grid(True)
-        plt.tight_layout()
-        plt.show()
-
-    except ValueError:
-        print("Masukkan angka yang valid.")
+plt.title('Performance Comparison: Linear Search (Recursive vs Iterative)')
+plt.xlabel('Input Size (n)')
+plt.ylabel('Execution Time (seconds)')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
